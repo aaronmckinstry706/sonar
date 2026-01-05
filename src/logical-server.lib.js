@@ -1,6 +1,6 @@
 import { EngineLayoutGenerator } from "./engineLayout.lib.js";
 import { generateBoard } from "./board-layout.lib.js";
-import { W as WATER, L as LAND } from "./board-layout.lib.js";
+import { W as WATER, L as LAND, I as ICE } from "./board-layout.lib.js";
 import { GlobalPhases, InterruptTypes, SubmarineStates } from "./constants.js";
 
 const rowDeltas = { N: -1, S: 1, E: 0, W: 0 };
@@ -506,13 +506,20 @@ export class LogicalServer {
     if (this.state.phase !== GlobalPhases.LIVE || surfacingSub.submarineState !== SUBMERGED)
       return;
 
-    // set sub state to SURFACING, and reset task data
-    surfacingSub.submarineState = SubmarineStates.SURFACING;
-    surfacingSub.submarineStateData.SURFACING.roleTaskCompletion.forEach(
-      roleAndCompleted => {
-        roleAndCompleted.completed = false;
-      }
-    );
+    if (this.state.board[surfacingSub.row][surfacingSub.col] === ICE) {
+      surfacingSub.health -= 1;
+      this.#checkForGameOver();
+    }
+
+    if (this.state.phase !== GlobalPhases.GAME_OVER) {
+      // set sub state to SURFACING, and reset task data
+      surfacingSub.submarineState = SubmarineStates.SURFACING;
+      surfacingSub.submarineStateData.SURFACING.roleTaskCompletion.forEach(
+        roleAndCompleted => {
+          roleAndCompleted.completed = false;
+        }
+      );
+    }
   }
 
   /**Returns true if sub can submerge. */

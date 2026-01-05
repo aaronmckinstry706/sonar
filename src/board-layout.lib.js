@@ -1,5 +1,6 @@
 export const L = 1;
 export const W = 0;
+export const I = 2
 
 export function generateBoard() {
     // For now, just generate the default board. Will randomly generate a board later.

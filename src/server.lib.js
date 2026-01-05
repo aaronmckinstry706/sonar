@@ -181,6 +181,9 @@ export function createAndRunServer(/**@type {LogicalServer} */ logicalServer, po
       log(`Player ${logicalServer.playerName(socket.id)} (${socket.id}) attempted to surface.`);
 
       logicalServer.surface(socket.id);
+      if (logicalServer.state.phase === GlobalPhases.GAME_OVER) {
+        log('Surfacing in ice has destroyed the sub.');
+      }
 
       log('Broadcasting state update after attempt to complete .');
       ioServer.emit("state", logicalServer.state);
